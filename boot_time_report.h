@@ -9,9 +9,11 @@
 #include <string.h>
 #include <inttypes.h>
 
-#define BOOTSTAGE_PRESERVED_ADDR 0xA0000000
-#define BOOTSTAGE_SIZE 0x4000
-#define RECORD_COUNT 256
+#define BOOTSTAGE_PRESERVED_ADDR	0xA0000000
+#define BOOTSTAGE_SIZE			0x90000
+#define MCU_BOOTSTAGE_START_OFFSET	0x80000
+#define MCU_BOOTRECORD_OFFSET		0x10
+#define RECORD_COUNT 			256
 
 enum {
 	BOOTSTAGE_VERSION = 0,
@@ -32,30 +34,56 @@ struct uboot_bootstage_record {
 	uint64_t start_us; // Start time in microseconds /
 	const char *name; // 32-bit pointer to the stage name /
 	int flags; // Bootstage flags /
-	int id; // Bootstage id /
+	int id; // Bootstage id
 } __attribute__((packed));
 
+typedef struct
+{
+    /* Name of the record profile */
+    char name[24];
+    /* Time measurement for this profile */
+    uint64_t time;
+} mcu_boot_record_profile_t;
+
+/**
+ * Boot stage record structure
+ */
+typedef struct
+{
+    /* Unique identifier for this record */
+    uint32_t record_id;
+    /* Count of profile records in this boot stage */
+    uint32_t record_count;
+    /* Start time of this boot stage */
+    uint64_t start_time;
+    /* Array of profile records */
+    mcu_boot_record_profile_t profiles[0];
+} mcu_boot_stage_record_t;
+
 typedef struct {
-	unsigned int start_time;
-	unsigned int delta_time;
+	uint64_t start_time;
+	uint64_t delta_time;
 	char name[64];
 } boot_record_t;
 
 typedef struct {
-	unsigned int ustart_time;
-	unsigned int uend_time;
-	unsigned int kstart_time;
-	unsigned int kend_time;
+	uint64_t ustart_time;
+	uint64_t mcu_start_time;
+	uint64_t uend_time;
+	uint64_t kstart_time;
+	uint64_t kend_time;
 	int count;
+	int mcu_reccount;
 } boot_summary_t;
 
 boot_record_t boot_records[RECORD_COUNT];
+boot_record_t mcu_boot_records[RECORD_COUNT];
 boot_summary_t boot_summary;
-unsigned int prev_time = 0;
+uint64_t prev_time = 0;
 
 const char* bootstage_id_names[] = {
-    [0] = "BOOTSTAGE_ID_START",
-    [1] = "BOOTSTAGE_ID_CHECK_MAGIC",
+    [0] = "START",
+    [1] = "CHECK_MAGIC",
     [2] = "BOOTSTAGE_ID_CHECK_HEADER",
     [3] = "BOOTSTAGE_ID_CHECK_CHECKSUM",
     [4] = "BOOTSTAGE_ID_CHECK_ARCH",
@@ -69,11 +97,11 @@ const char* bootstage_id_names[] = {
     [12] = "BOOTSTAGE_ID_COPY_RAMDISK",
     [13] = "BOOTSTAGE_ID_RAMDISK",
     [14] = "BOOTSTAGE_ID_NO_RAMDISK",
-    [15] = "BOOTSTAGE_ID_RUN_OS",
+    [15] = "BOOTSTAGE_RUN_OS",
     [30] = "BOOTSTAGE_ID_NEED_RESET",
     [31] = "BOOTSTAGE_ID_POST_FAIL",
     [32] = "BOOTSTAGE_ID_POST_FAIL_R",
-    [33] = "BOOTSTAGE_ID_BOARD_INIT_R",
+    [33] = "INIT_R",
     [34] = "BOOTSTAGE_ID_BOARD_GLOBAL_DATA",
     [35] = "BOOTSTAGE_ID_BOARD_INIT_SEQ",
     [36] = "BOOTSTAGE_ID_BOARD_FLASH",
@@ -99,8 +127,8 @@ const char* bootstage_id_names[] = {
     [57] = "BOOTSTAGE_ID_NAND_TYPE",
     [58] = "BOOTSTAGE_ID_NAND_READ",
     [60] = "BOOTSTAGE_ID_NET_CHECKSUM",
-    [64] = "BOOTSTAGE_ID_NET_ETH_START",
-    [65] = "BOOTSTAGE_ID_NET_ETH_INIT",
+    [64] = "BOOTSTAGE_NET_ETH_START",
+    [65] = "BOOTSTAGE_NET_ETH_INIT",
     [80] = "BOOTSTAGE_ID_NET_START",
     [81] = "BOOTSTAGE_ID_NET_NETLOOP_OK",
     [82] = "BOOTSTAGE_ID_NET_LOADED",
@@ -122,23 +150,23 @@ const char* bootstage_id_names[] = {
     [151] = "BOOTSTAGE_ID_NAND_FIT_READ_OK",
     [160] = "BOOTSTAGE_ID_FIT_LOADABLE_START",
     [170] = "BOOTSTAGE_ID_FIT_SPL_START",
-    [171] = "BOOTSTAGE_ID_AWAKE",
+    [171] = "BOOTSTAGE_AWAKE",
     [172] = "BOOTSTAGE_ID_START_TPL",
     [173] = "BOOTSTAGE_ID_END_TPL",
     [174] = "BOOTSTAGE_ID_START_SPL",
     [175] = "BOOTSTAGE_ID_END_SPL",
-    [176] = "BOOTSTAGE_ID_START_VPL",
+    [176] = "BOOTSTAGE_START_MCU",
     [177] = "BOOTSTAGE_ID_END_VPL",
-    [178] = "BOOTSTAGE_ID_START_UBOOT_F",
-    [179] = "BOOTSTAGE_ID_START_UBOOT_R",
-    [180] = "BOOTSTAGE_ID_USB_START",
-    [181] = "BOOTSTAGE_ID_ETH_START",
+    [178] = "BOOTSTAGE_START_UBOOT_F",
+    [179] = "BOOTSTAGE_START_UBOOT_R",
+    [180] = "BOOTSTAGE_USB_START",
+    [181] = "BOOTSTAGE_ETH_START",
     [182] = "BOOTSTAGE_ID_BOOTP_START",
     [183] = "BOOTSTAGE_ID_BOOTP_STOP",
-    [184] = "BOOTSTAGE_ID_BOOTM_START",
-    [185] = "BOOTSTAGE_ID_BOOTM_HANDOFF",
-    [186] = "BOOTSTAGE_ID_MAIN_LOOP",
-    [187] = "BOOTSTAGE_ID_ENTER_CLI_LOOP",
+    [184] = "BOOTSTAGE_BOOTM_START",
+    [185] = "BOOTSTAGE_BOOTM_HANDOFF",
+    [186] = "BOOTSTAGE_MAIN_LOOP",
+    [187] = "BOOTSTAGE_ENTER_CLI_LOOP",
     [188] = "BOOTSTAGE_KERNELREAD_START",
     [189] = "BOOTSTAGE_KERNELREAD_STOP",
     [190] = "BOOTSTAGE_ID_BOARD_INIT",
@@ -153,19 +181,20 @@ const char* bootstage_id_names[] = {
     [199] = "BOOTSTAGE_ID_ACCUM_OF_LIVE",
     [200] = "BOOTSTAGE_ID_FPGA_INIT",
     [201] = "BOOTSTAGE_ID_ACCUM_DM_SPL",
-    [202] = "BOOTSTAGE_ID_ACCUM_DM_F",
-    [203] = "BOOTSTAGE_ID_ACCUM_DM_R",
+    [202] = "BOOTSTAGE_ACCUM_DM_F",
+    [203] = "BOOTSTAGE_ACCUM_DM_R",
     [204] = "BOOTSTAGE_ID_ACCUM_FSP_M",
     [205] = "BOOTSTAGE_ID_ACCUM_FSP_S",
     [206] = "BOOTSTAGE_ID_ACCUM_MMAP_SPI",
     [207] = "BOOTSTAGE_ID_USER",
     [208] = "BOOTSTAGE_ID_ALLOC",
-    [300] = "BOOTSTAGE_ID_KERNEL_START",
-    [301] = "BOOTSTAGE_ID_KERNEL_END",
+    [300] = "BOOTSTAGE_KERNEL_START",
+    [301] = "BOOTSTAGE_KERNEL_END",
 };
 
 enum boot_markers {
-	BOOTSTAGE_START_UBOOT = 179,
+	BOOTSTAGE_START_UBOOT = 178,
+	BOOTSTAGE_START_MCU = 176,
 	BOOTSTAGE_BOOTM_HANDOFF = 185,
 	BOOTSTAGE_KERNEL_START = 300,
 	BOOTSTAGE_KERNEL_END,
