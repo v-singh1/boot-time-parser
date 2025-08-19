@@ -27,30 +27,51 @@ sudo make install
 
 📊 Sample Boot Report
 
-+-----------------------------------------------------+
-                 am62xx-evm Boot Time Report
-+-----------------------------------------------------+
++--------------------------------------------------------------------+
+                 am62xx-evm Boot Time Report 
++--------------------------------------------------------------------+
 Device Power On         : 0 ms
-SPL Time                : 1902 ms
-U-BOOT Time             : 3007 ms
-Kernel handoff time     : 541 ms
-Kernel Time             : 2892 ms
-Total Boot Time         : 8342 ms
-+-----------------------------------------------------+
-BOOTSTAGE_ID_AWAKE             =      0 ms (+  0 ms)
-BOOTSTAGE_ID_START_UBOOT_F     =    797 ms (+  0 ms)
-BOOTSTAGE_ID_ACCUM_DM_F        =    797 ms (+  0 ms)
-BOOTSTAGE_ID_START_UBOOT_R     =   1902 ms (+1105 ms)
-BOOTSTAGE_ID_ACCUM_DM_R        =   1902 ms (+  0 ms)
-BOOTSTAGE_ID_NET_ETH_START     =   1982 ms (+ 80 ms)
-BOOTSTAGE_ID_NET_ETH_INIT      =   2004 ms (+ 22 ms)
-BOOTSTAGE_ID_MAIN_LOOP         =   2006 ms (+  2 ms)
-BOOTSTAGE_ID_BOOTM_START       =   4853 ms (+2847 ms)
-BOOTSTAGE_ID_RUN_OS            =   4909 ms (+ 56 ms)
-BOOTSTAGE_ID_BOOTM_HANDOFF     =   4909 ms (+  0 ms)
-BOOTSTAGE_ID_KERNEL_START      =   5450 ms (+541 ms)
-BOOTSTAGE_ID_KERNEL_END        =   8342 ms (+2892 ms)
-+-----------------------------------------------------+
+SPL Time                : 843 ms
+U-Boot Time             : 2173 ms
+Kernel handoff time     : 462 ms
+Kernel Time             : 2522 ms
+Total Boot Time         : 6000 ms
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+                 Bootloader and Kernel Boot Records
++--------------------------------------------------------------------+
+BOOTSTAGE_AWAKE                =      0 ms (+  0 ms)
+BOOTSTAGE_START_UBOOT_F        =    843 ms (+  0 ms)
+BOOTSTAGE_ACCUM_DM_F           =    843 ms (+  0 ms)
+BOOTSTAGE_START_UBOOT_R        =   1951 ms (+1108 ms)
+BOOTSTAGE_ACCUM_DM_R           =   1951 ms (+  0 ms)
+BOOTSTAGE_NET_ETH_START        =   2032 ms (+ 81 ms)
+BOOTSTAGE_NET_ETH_INIT         =   2053 ms (+ 21 ms)
+BOOTSTAGE_MAIN_LOOP            =   2055 ms (+  2 ms)
+BOOTSTAGE_START_MCU            =   2661 ms (+606 ms)
+BOOTSTAGE_BOOTM_START          =   2959 ms (+298 ms)
+BOOTSTAGE_RUN_OS               =   3016 ms (+ 57 ms)
+BOOTSTAGE_BOOTM_HANDOFF        =   3016 ms (+  0 ms)
+BOOTSTAGE_KERNEL_START         =   3478 ms (+462 ms)
+BOOTSTAGE_KERNEL_END           =   6000 ms (+2522 ms)
++--------------------------------------------------------------------+
+
++--------------------------------------------------------------------+
+                 MCU Boot Records 
++--------------------------------------------------------------------+
+MCU_AWAKE                      =   2661 ms (+  0 ms)
+BOARD_PERIPHERALS_INIT         =   2661 ms (+  0 ms)
+MAIN_TASK_CREATE               =   2661 ms (+  0 ms)
+FIRST_TASK                     =   2662 ms (+  1 ms)
+DRIVERS_OPEN                   =   2662 ms (+  0 ms)
+BOARD_DRIVERS_OPEN             =   2662 ms (+  0 ms)
+IPC_SYNC_FOR_LINUX             =   6636 ms (+3974 ms)
+IPC_REGISTER_CLIENT            =   6636 ms (+  0 ms)
+IPC_SUSPEND_TASK               =   6636 ms (+  0 ms)
+IPC_RECEIVE_TASK               =   6636 ms (+  0 ms)
+IPC_SYNC_ALL                   =   6787 ms (+151 ms)
++--------------------------------------------------------------------+
 
 📌 Usage
 
