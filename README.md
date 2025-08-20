@@ -73,6 +73,11 @@ IPC_RECEIVE_TASK               =   6636 ms (+  0 ms)
 IPC_SYNC_ALL                   =   6787 ms (+151 ms)
 +--------------------------------------------------------------------+
 
+Graphical output
+<img width="3732" height="1674" alt="image" src="https://github.com/user-attachments/assets/b790d9be-9607-40b4-bd69-cffd3f971ffb" />
+<img width="3755" height="1466" alt="image" src="https://github.com/user-attachments/assets/f59cea98-a16b-4603-bbb2-331ef0004c9c" />
+
+
 📌 Usage
 
 1. Apply kernel and U-Boot patches from kernel_patch/ and uboot_patch/.
