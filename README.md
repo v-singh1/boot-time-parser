@@ -97,7 +97,7 @@ Linux Kernel 6.12+
 
 📄 License
 
-MIT License (or BSD-3-Clause if aligned with TI SDK licensing)
+MIT License
 
 ---
 
