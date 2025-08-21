@@ -24,8 +24,8 @@ cd build
 cmake ..
 make
 sudo make install
-
-📊 Sample Boot Report
+```
+## 📊 Sample Boot Report
 
 +--------------------------------------------------------------------+
                  am62xx-evm Boot Time Report 
