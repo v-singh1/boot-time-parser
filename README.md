@@ -24,9 +24,9 @@ cd build
 cmake ..
 make
 sudo make install
-
-📊 Sample Boot Report
-
+```
+## 📊 Sample Boot Report
+```bash
 +--------------------------------------------------------------------+
                  am62xx-evm Boot Time Report 
 +--------------------------------------------------------------------+
@@ -72,6 +72,11 @@ IPC_SUSPEND_TASK               =   6636 ms (+  0 ms)
 IPC_RECEIVE_TASK               =   6636 ms (+  0 ms)
 IPC_SYNC_ALL                   =   6787 ms (+151 ms)
 +--------------------------------------------------------------------+
+```
+![Graphical Output](images/Boot_report_1.png)
+![](images/Boot_report_2.png)
+
+![](images/Boot_report_3.png)
 
 📌 Usage
 

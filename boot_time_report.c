@@ -1,15 +1,91 @@
+/*
+ *  Copyright (C) 2025 Texas Instruments Incorporated
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *    Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ *    Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the
+ *    distribution.
+ *
+ *    Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ *  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ *  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/**
+ * \file boot_time_report.c
+ * \brief Boot time record parser application for reading, parsing and
+ * preparing final unified boot time report.
+ */
+
+/* ========================================================================== */
+/*                           Include Files                                    */
+/* ========================================================================== */
+
 #include "boot_time_report.h"
+
+
+/* ========================================================================== */
+/*                          Global Variables                                  */
+/* ========================================================================== */
 
 char hostname[128] = "";
 
+
+/* ========================================================================== */
+/*                          Function Definitions                              */
+/* ========================================================================== */
+
+/**
+ * @brief Retrieves the hostname of the current machine.
+ * 
+ * This function uses the `gethostname` system call to fetch the hostname
+ * and store it in the provided buffer. If the operation fails, an error
+ * message is printed to standard error.
+ * 
+ * @param hostname A buffer to store the hostname.
+ * @param size The size of the hostname buffer.
+ * @return int Returns 0 on success, or a non-zero value on failure.
+ */
 const char* get_bootstage_id_name(int id) {
-	if (id < 0 || id >= sizeof(bootstage_id_names)/sizeof(bootstage_id_names[0]) || bootstage_id_names[id] == NULL)
+	// Check if the ID is out of bounds or if the name is NULL.
+	if (id < 0 || id >= sizeof(bootstage_id_names)/sizeof(bootstage_id_names[0])
+		|| bootstage_id_names[id] == NULL)
 		return "UNKNOWN_BOOTSTAGE_ID";
 	return bootstage_id_names[id];
 }
 
+/**
+ * @brief Exports the boot records to an HTML file.
+ * 
+ * This function generates an HTML report containing the boot records and
+ * saves it to the specified file. The report includes the number of boot
+ * records collected.
+ * 
+ * @param filename The name of the HTML file to export the report to.
+ * @param record_count The number of boot records to include in the report.
+ */
 void export_html(const char *filename, int count)
 {
+	// Open the file for writing.
 	FILE *fp = fopen(filename, "w");
 	if (!fp) return;
 
@@ -221,6 +297,12 @@ void export_html(const char *filename, int count)
 	fclose(fp);
 }
 
+/**
+ * @brief Prints the collected boot records.
+ * 
+ * This function outputs the gathered boot records to the console or another
+ * output stream for verification or analysis.
+ */
 void print_boot_records()
 {
 	printf("--------------------------------------------------------------------\n");
@@ -252,10 +334,18 @@ void print_boot_records()
 	printf("--------------------------------------------------------------------\n");
 }
 
+/**
+ * @brief Reads kernel boot records from a log file.
+ * 
+ * This function parses the specified log file to extract kernel boot
+ * information, such as initialization times or errors encountered during
+ * startup.
+ * 
+ * @param filepath The path to the log file containing kernel boot records.
+ */
 void read_kernel_boot_records(const char* filename) {
 	char line[512];
 	int index = 0;
-	//int cnt = boot_summary.count;
 
 	FILE *fp = fopen(filename, "r");
 	if (!fp) {
@@ -290,6 +380,13 @@ void read_kernel_boot_records(const char* filename) {
 	fclose(fp);
 }
 
+/**
+ * @brief Reads U-Boot stage records from memory.
+ * 
+ * This function extracts boot stage information from memory, likely
+ * related to the U-Boot bootloader. The data is used for diagnostic
+ * or performance analysis purposes.
+ */
 int read_ubootstage_records_from_mem()
 {
 	int fd;
