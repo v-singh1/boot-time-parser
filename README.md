@@ -73,6 +73,11 @@ IPC_RECEIVE_TASK               =   6636 ms (+  0 ms)
 IPC_SYNC_ALL                   =   6787 ms (+151 ms)
 +--------------------------------------------------------------------+
 
+![Graphical Output](images/Boot_report_1.png)
+![](images/Boot_report_2.png)
+
+![](images/Boot_report_3.png)
+
 📌 Usage
 
 1. Enable Boot stage logging feature in uboot and Kernel
