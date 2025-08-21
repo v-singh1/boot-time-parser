@@ -97,7 +97,7 @@ Linux Kernel 6.12+
 
 📄 License
 
-MIT License
+BSD 3-Clause
 
 ---
 
